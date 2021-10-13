@@ -2,6 +2,8 @@
 
 Será utilizado para fazer a orquestração e simulação dos dataflows com a camada do cache.
 
+Referência docker airflow: https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html
+
 ## Requisitos
 
 - [docker](https://www.docker.com/get-started)
