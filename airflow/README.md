@@ -2,21 +2,27 @@
 
 Será utilizado para fazer a orquestração e simulação dos dataflows com a camada do cache.
 
-Referência docker airflow: https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html
+## Adicionar o chart
 
-## Requisitos
+    $ helm repo add apache-airflow https://airflow.apache.org
+    $ helm repo update
 
-- [docker](https://www.docker.com/get-started)
-- [docker-compose](https://docs.docker.com/compose/)
+## Instalar a ultima versão do airflow python 3.7 no cluster k8s
 
-Segue abaixo para iniciar o Airflow
+    $ helm install airflow-tese apache-airflow/airflow --namespace default
 
-    $ make airflow-start
+## Atualizar o docker registry com as imagem do Airflow com as dags
 
-Para pausar a aplicação e remover os componentes:
+    $ make install-all
 
-    $ make airflow-stop
+## Atualizar o airflow com as dags para a simulação
 
-## As Dags para simulação
+As dags para as simulações dos dataflows precisam estar na pasta `dags` do diretório `airflow`. Então utilizar o comando abaixo para enviar as dags para o airflow no cluster k8s.
 
-As dags para as simulações dos dataflows precisam estar na pasta `dags` do diretório `airflow`. Com isso o docker-compose irá mapear para o container que vai iniciar a aplicação.
+    $ helm upgrade airflow-tese apache-airflow/airflow --namespace default \
+    $ --set images.airflow.repository=localhost:5000/airflow-w-dags \
+    $ --set images.airflow.tag=latest
+
+## Para expor o serviço do airflow
+
+    $ kubectl port-forward svc/airflow-tese-webserver 8080:8080 --namespace default
