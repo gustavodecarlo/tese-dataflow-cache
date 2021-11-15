@@ -32,3 +32,21 @@ Caso tenha parado o cluster, este comando realizar o start.
 
 - Para o Airflow e as dag para as simulações as instruções para implementar e instalar o cenário, estão no diretório: airflow/README.md
 
+
+## O que foi feito
+
+- Arquitetura do cenário para a tese:
+    - Cluster Kubernetes usando o k3d
+    - Airflow no cluster kubernetes
+    - Spark Operator
+    - Com dag de exemplo de como utilizar o operador do airflow com o spark operator.
+
+## Pŕoximos passos
+
+- Definir onde serão armazenados os fragmentos e as operações, hipóteses:
+    - Delta Lake no HDFS ou Filesystem local e Apache Cassandra para as operações
+- Desenvolver a biblioteca que vai salvar o fragmento de dados e as operações do dataflow em pyspark
+- Montar pipeline de teste da biblioteca do gerenciador do cache
+- trabalhar em cenários propostos no relatório da disciplina de estudo dirigido
+
+
