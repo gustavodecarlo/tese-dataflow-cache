@@ -20,7 +20,7 @@ Será utilizado para fazer a orquestração e simulação dos dataflows com a ca
 As dags para as simulações dos dataflows precisam estar na pasta `dags` do diretório `airflow`. Então utilizar o comando abaixo para enviar as dags para o airflow no cluster k8s.
 
     $ helm upgrade airflow-tese apache-airflow/airflow --namespace default \
-    $ --set images.airflow.repository=localhost:5000/airflow-w-dags \
+    $ --set images.airflow.repository=airflow-w-dags \
     $ --set images.airflow.tag=latest
 
 ## Para expor o serviço do airflow
