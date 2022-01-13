@@ -1,0 +1,4 @@
+image:
+  repository: gcr.io/spark-operator/spark-operator
+  pullPolicy: IfNotPresent
+  tag: "latest"

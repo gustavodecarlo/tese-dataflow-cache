@@ -2,7 +2,7 @@
 
 ## Requisitos
 
-- [k3d](https://k3d.io/v5.1.0/)
+- [kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
 - [helm](https://helm.sh/)
 - [spark-operator](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator)
 - [airflow](https://airflow.apache.org/)
@@ -10,21 +10,9 @@
 - [python >= 3.7](https://www.python.org/)
 - [pyspark](http://spark.apache.org/docs/latest/api/python/)
 
-## Criação do cluster k8s com o k3d para o cenário da tese
+## Criação do cluster k8s com o kind para o cenário da tese
 
-    $ k3d cluster create k8s-tese
-
-## Para executar o stop no Cluster k8s
-
-Aqui recomendado para o cluster não ficar consumindo os recursos do ambiente local.
-
-    $ k3d cluster stop k8s-tese
-
-## Para o start no Cluster k8s
-
-Caso tenha parado o cluster, este comando realizar o start.
-
-    $ k3d cluster start k8s-tese
+    $ kind cluster create
 
 ## Airflow, spark-operator e as dags para as simulações
 
@@ -32,16 +20,15 @@ Caso tenha parado o cluster, este comando realizar o start.
 
 - Para o Airflow e as dag para as simulações as instruções para implementar e instalar o cenário, estão no diretório: airflow/README.md
 
-
 ## O que foi feito
 
 - Arquitetura do cenário para a tese:
-    - Cluster Kubernetes usando o k3d
+    - Cluster Kubernetes usando o kind
     - Airflow no cluster kubernetes
     - Spark Operator
     - Com dag de exemplo de como utilizar o operador do airflow com o spark operator.
 
-## Pŕoximos passos
+## Próximos passos
 
 - Definir onde serão armazenados os fragmentos e as operações, hipóteses:
     - Delta Lake no HDFS ou Filesystem local e Apache Cassandra para as operações
