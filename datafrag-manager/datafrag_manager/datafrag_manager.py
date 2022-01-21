@@ -61,6 +61,3 @@ class datafragSparkAPI(object):
         )
         return datafrag
     
-    def have_datafrag(self, datafrag_ref: str, operations_to_compare: dict) -> bool:
-        pass
-    
