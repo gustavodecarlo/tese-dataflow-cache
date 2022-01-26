@@ -26,7 +26,7 @@ class datafragSparkAPI(object):
                     'cost': temp[1].split("=")[1].replace(")","")
                 }
             })
-        metadata['timestamp'] = datetime.now()
+        metadata['timestamp'] = datetime.now().replace(microsecond=0)
         logger.debug(metadata)
         return metadata
 
@@ -55,9 +55,21 @@ class datafragSparkAPI(object):
         )
 
     def get_datafrag(self, datafrag_ref: str) -> DataFrame:
-        datafrag = (self.spark_session.read
-            .format('delta')
-            .load(f'{self.datafrag_wareghouse}/{datafrag_ref}')
-        )
-        return datafrag
+        try:
+            datafrag = (self.spark_session.read
+                .format('delta')
+                .load(f'{self.datafrag_wareghouse}/{datafrag_ref}')
+            )
+            return datafrag
+        except Exception as e:
+            logging.warning('Could not read fragment because: {e}')
+            return None
+
+class datafragOperationsAPI(object):
+    def __init__(self, cassandra_connection, keyspace: str, table: str) -> None:
+        self.cassandra_connection = cassandra_connection
+        self.keyspace = keyspace
+        self.table = table
     
+    def have_datafrag_operation(self, datafrag_ref: str):
+        pass
