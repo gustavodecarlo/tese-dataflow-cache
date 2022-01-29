@@ -27,3 +27,10 @@ CREATE TABLE datafrag_operations(
 );
 ```
 
+pyspark --packages com.datastax.spark:spark-cassandra-connector_2.12:3.1.0,io.delta:delta-core_2.12:1.0.0 \
+--conf spark.cassandra.connection.host=127.0.0.1 \
+--conf spark.cassandra.auth.password=UL7kopfcWq \
+--conf spark.cassandra.auth.username=cassandra \
+--conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension,com.datastax.spark.connector.CassandraSparkExtensions \
+--conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
+

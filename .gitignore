@@ -130,3 +130,9 @@ dmypy.json
 
 # Airflow server folders and files
 logs/
+
+# Tests data
+warehouse/
+warehouse_frags/
+metastore_db/
+source_data/

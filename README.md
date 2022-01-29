@@ -20,20 +20,25 @@
 
 - Para o Airflow e as dag para as simulações as instruções para implementar e instalar o cenário, estão no diretório: airflow/README.md
 
+- Para instalar o Cassandra para armazenar os metadados dos fragmentos, então no diretório: cassandra/README.md
+
 ## O que foi feito
 
 - Arquitetura do cenário para a tese:
     - Cluster Kubernetes usando o kind
     - Airflow no cluster kubernetes
     - Spark Operator
+    - Apache Cassandra
     - Com dag de exemplo de como utilizar o operador do airflow com o spark operator.
+    - Para o cenário da tese: GCS com o delta lake (fragmentos) e Cassandra (Operaçoes) 
+    - Desenvolver a biblioteca que vai salvar o fragmento de dados e as operações do dataflow em pyspark
 
 ## Próximos passos
 
-- Definir onde serão armazenados os fragmentos e as operações, hipóteses:
-    - Delta Lake no HDFS ou Filesystem local e Apache Cassandra para as operações
-- Desenvolver a biblioteca que vai salvar o fragmento de dados e as operações do dataflow em pyspark
+- Atualizar a api de fragmentos com python puro para usar na dag do airflow
+- TDD da api de fragmentos spark
 - Montar pipeline de teste da biblioteca do gerenciador do cache
 - trabalhar em cenários propostos no relatório da disciplina de estudo dirigido
-
+    - inciar com o cenário do COR da disciplina cb500 de bigdata
+    - Montar um cenário com os dados da covid do John Hopikns
 
