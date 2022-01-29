@@ -69,3 +69,5 @@ def test_datafragSparkAPI_exception_schema_operation():
         StructField("timestamp", TimestampType())
     ])
     assert expected == actual
+
+    

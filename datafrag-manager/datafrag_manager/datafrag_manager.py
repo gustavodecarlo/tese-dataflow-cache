@@ -1,8 +1,10 @@
 import logging
 from datetime import datetime
+from xmlrpc.client import Boolean
 
 from pyspark.sql.session import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType
+from cassandra import ReadTimeout
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +64,7 @@ class datafragSparkAPI(object):
             )
             return datafrag
         except Exception as e:
-            logging.warning('Could not read fragment because: {e}')
+            logger.warning(f'Could not read fragment because: {e}')
             return None
 
 class datafragOperationsAPI(object):
@@ -71,5 +73,15 @@ class datafragOperationsAPI(object):
         self.keyspace = keyspace
         self.table = table
     
-    def have_datafrag_operation(self, datafrag_ref: str):
-        pass
+    def have_datafrag_operation(self, datafrag_ref: str) -> bool:
+        query = f'SELECT * FROM {self.keyspace}.{self.table} WHERE dataflow=%s'
+        future = self.cassandra_connection.execute_async(query, [datafrag_ref])
+        try:
+            rows = future.result()
+            if rows:
+                return True
+            else:
+                return False
+        except Exception as e:
+            logger.warning(f'Could not read fragment because: {e}')
+            return False
