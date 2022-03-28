@@ -27,6 +27,7 @@ def covid_raw(
         help="Destiny table of covid raw data",
     ),
 ):
+    print(f'env vars: {ENV_CONFIG}')
     spark_session = setup_spark(
         app_name='covid_raw',
         cassandra_user=ENV_CONFIG['cassandra_user'],

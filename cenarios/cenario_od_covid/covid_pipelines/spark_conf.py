@@ -21,10 +21,7 @@ def setup_spark(
         .config('spark.cassandra.auth.password', cassandra_password)
         .getOrCreate()
     )
-    conf = spark.sparkContext._jsc.hadoopConfiguration()
-    conf.set('fs.gs.impl', 'com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem')
-    conf.set('fs.AbstractFileSystem.gs.impl', 'com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS')
-    conf.set('fs.gs.outputstream.pipe.buffer.size', '8388608')
+
     return spark
 
 ENV_CONFIG = {

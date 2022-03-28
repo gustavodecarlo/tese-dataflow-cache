@@ -4,9 +4,12 @@ docker-build:
 kind-image-import:
 	kind load docker-image airflow-w-dags:latest
 
-k3d-image-import:
-	k3d image import airflow-w-dags:latest -c k8s-tese
-
 install-all:
 	make docker-build
 	make kind-image-import
+
+helm-airflow-upgrade:
+	helm upgrade airflow-tese apache-airflow/airflow --namespace default \
+    	--set images.airflow.repository=airflow-w-dags \
+    	--set images.airflow.tag=latest \
+		--recreate-pods

@@ -38,7 +38,7 @@ def pipeline_covid_raw_ingest(
     (source_df.write
         .format('delta')
         .mode('overwrite')
-        .option('overwriteSchema', 'true') \
+        .option('overwriteSchema', 'true')
         .save(f'gs://{bucket}/{warehouse}/{destiny_table}')
     )
 
