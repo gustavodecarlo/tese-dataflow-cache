@@ -1,7 +1,7 @@
 apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
-  name: "covid-raw-{{ macros.uuid.uuid4() }}-{{ task_instance.try_number }}"
+  name: "covid-cleaned-agg-{{ macros.uuid.uuid4() }}-{{ task_instance.try_number }}"
   namespace: default
 spec:
   type: Python
@@ -27,6 +27,9 @@ spec:
     "fs.gs.outputstream.upload.chunk.size": "134217728"
     "fs.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem"
     "fs.AbstractFileSystem.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS"
+  sparkConf:
+    "spark.sql.shuffle.partitions": "10"
+    "spark.sql.parquet.compression.codec": "gzip"
   sparkVersion: "3.1.2"
   restartPolicy:
     type: Never

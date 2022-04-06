@@ -48,7 +48,8 @@ ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ENV PYSPARK_PYTHON=/usr/local/bin/python
 
 # Setup dependencies for Google Cloud Storage access.
-RUN rm $SPARK_HOME/jars/guava-14.0.1.jar
+RUN rm $SPARK_HOME/jars/guava-14.0.1.jar \
+&&  rm $SPARK_HOME/jars/snappy-java-1.1.8.2.jar
 ADD https://repo1.maven.org/maven2/com/google/guava/guava/31.0.1-jre/guava-31.0.1-jre.jar $SPARK_HOME/jars
 RUN chmod 644 $SPARK_HOME/jars/guava-31.0.1-jre.jar
 ADD https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar $SPARK_HOME/jars
@@ -65,6 +66,8 @@ ADD https://repo1.maven.org/maven2/io/delta/delta-core_2.12/1.0.1/delta-core_2.1
 RUN chmod 644 $SPARK_HOME/jars/delta-core_2.12-1.0.1.jar
 ADD https://repo1.maven.org/maven2/io/delta/delta-contribs_2.12/1.0.1/delta-contribs_2.12-1.0.1.jar $SPARK_HOME/jars
 RUN chmod 644 $SPARK_HOME/jars/delta-contribs_2.12-1.0.1.jar
+ADD https://repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.8.4/snappy-java-1.1.8.4.jar $SPARK_HOME/jars
+RUN chmod 644 $SPARK_HOME/jars/snappy-java-1.1.8.4.jar
 
 RUN jar -xvf $SPARK_HOME/jars/zstd-jni-1.4.8-1.jar linux/amd64/libzstd-jni.so \
     && mv linux/amd64/libzstd-jni.so /usr/lib \
