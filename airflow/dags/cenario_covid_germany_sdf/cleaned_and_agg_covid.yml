@@ -17,7 +17,7 @@ spec:
     "--table",
     "covid_treated_agg",
     "--filter",
-    "Country_Region=\"Brazil\""  
+    "Country_Region=\"Germany\""
   ]
   hadoopConf:
     "google.cloud.auth.service.account.enable": "true"

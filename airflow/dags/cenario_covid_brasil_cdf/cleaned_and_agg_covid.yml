@@ -17,18 +17,13 @@ spec:
     "--table",
     "covid_treated_agg",
     "--filter",
-    "Country_Region=\"Brazil\""  
+    "Country_Region=\"Brazil\"",
+    "--have-datafrag"
   ]
   hadoopConf:
-    "google.cloud.auth.service.account.enable": "true"
-    "google.cloud.auth.service.account.json.keyfile": "{{ env_config.google_application_credentials }}"
-    "fs.gs.outputstream.buffer.size": "33554432"
-    "fs.gs.outputstream.pipe.buffer.size": "8388608"
-    "fs.gs.outputstream.upload.chunk.size": "134217728"
     "fs.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem"
     "fs.AbstractFileSystem.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS"
   sparkConf:
-    "spark.sql.shuffle.partitions": "10"
     "spark.sql.parquet.compression.codec": "gzip"
   sparkVersion: "3.1.2"
   restartPolicy:

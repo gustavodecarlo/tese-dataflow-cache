@@ -51,23 +51,27 @@ ENV PYSPARK_PYTHON=/usr/local/bin/python
 RUN rm $SPARK_HOME/jars/guava-14.0.1.jar \
 &&  rm $SPARK_HOME/jars/snappy-java-1.1.8.2.jar
 ADD https://repo1.maven.org/maven2/com/google/guava/guava/31.0.1-jre/guava-31.0.1-jre.jar $SPARK_HOME/jars
-RUN chmod 644 $SPARK_HOME/jars/guava-31.0.1-jre.jar
 ADD https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar $SPARK_HOME/jars
-RUN chmod 644 $SPARK_HOME/jars/failureaccess-1.0.1.jar
 ADD https://repo1.maven.org/maven2/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar $SPARK_HOME/jars
-RUN chmod 644 $SPARK_HOME/jars/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
 ADD https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.4/gcs-connector-hadoop3-2.2.4-shaded.jar $SPARK_HOME/jars
-RUN chmod 644 $SPARK_HOME/jars/gcs-connector-hadoop3-2.2.4-shaded.jar
 ADD https://repo1.maven.org/maven2/com/google/cloud/spark/spark-bigquery-with-dependencies_2.12/0.23.2/spark-bigquery-with-dependencies_2.12-0.23.2.jar $SPARK_HOME/jars
-RUN chmod 644 $SPARK_HOME/jars/spark-bigquery-with-dependencies_2.12-0.23.2.jar
-ADD https://repo1.maven.org/maven2/com/datastax/spark/spark-cassandra-connector_2.12/3.1.0/spark-cassandra-connector_2.12-3.1.0-javadoc.jar $SPARK_HOME/jars
-RUN chmod 644 $SPARK_HOME/jars/spark-cassandra-connector_2.12-3.1.0-javadoc.jar
+ADD https://repo1.maven.org/maven2/com/datastax/spark/spark-cassandra-connector_2.12/3.1.0/spark-cassandra-connector_2.12-3.1.0.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/datastax/spark/spark-cassandra-connector-driver_2.12/3.1.0/spark-cassandra-connector-driver_2.12-3.1.0.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/datastax/oss/java-driver-core-shaded/4.12.0/java-driver-core-shaded-4.12.0.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/datastax/oss/java-driver-shaded-guava/25.1-jre-graal-sub-1/java-driver-shaded-guava-25.1-jre-graal-sub-1.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/datastax/oss/java-driver-query-builder/4.12.0/java-driver-query-builder-4.12.0.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/datastax/oss/java-driver-mapper-runtime/4.12.0/java-driver-mapper-runtime-4.12.0.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/datastax/oss/native-protocol/1.5.1/native-protocol-1.5.1.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/thoughtworks/paranamer/paranamer/2.8/paranamer-2.8.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/typesafe/config/1.4.2/config-1.4.2.jar $SPARK_HOME/jars
 ADD https://repo1.maven.org/maven2/io/delta/delta-core_2.12/1.0.1/delta-core_2.12-1.0.1.jar $SPARK_HOME/jars
-RUN chmod 644 $SPARK_HOME/jars/delta-core_2.12-1.0.1.jar
 ADD https://repo1.maven.org/maven2/io/delta/delta-contribs_2.12/1.0.1/delta-contribs_2.12-1.0.1.jar $SPARK_HOME/jars
-RUN chmod 644 $SPARK_HOME/jars/delta-contribs_2.12-1.0.1.jar
 ADD https://repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.8.4/snappy-java-1.1.8.4.jar $SPARK_HOME/jars
-RUN chmod 644 $SPARK_HOME/jars/snappy-java-1.1.8.4.jar
+ADD https://repo1.maven.org/maven2/com/datastax/oss/java-driver-mapper-processor/4.12.0/java-driver-mapper-processor-4.12.0.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.3/reactive-streams-1.0.3.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/github/jnr/jnr-posix/3.1.15/jnr-posix-3.1.15.jar $SPARK_HOME/jars
+
+RUN chmod 644 $SPARK_HOME/jars/*.jar
 
 RUN jar -xvf $SPARK_HOME/jars/zstd-jni-1.4.8-1.jar linux/amd64/libzstd-jni.so \
     && mv linux/amd64/libzstd-jni.so /usr/lib \
