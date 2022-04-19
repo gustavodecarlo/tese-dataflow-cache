@@ -101,13 +101,19 @@ def pipeline_enrich_cleaned_covid_data(
     filter: str,
     datafrag_keysapce: str,
     datafrag_metatable: str,
-    datafrag_warehouse: str
+    datafrag_warehouse: str,
+    read_datafrag: str = None
 ) -> None:
-    logger.info(f'Read source data {source_data}')
-    source_df = (spark_session.read
-        .format('delta')
-        .load(source_data)
-    )
+    dfsAPI = datafragSparkAPI(spark_session, datafrag_keysapce, datafrag_metatable, datafrag_warehouse)
+    if read_datafrag:
+        logger.info(f'Read data fragment {read_datafrag}')
+        source_df = dfsAPI.get_datafrag(datafrag_metatable)
+    else:
+        logger.info(f'Read source data {source_data}')
+        source_df = (spark_session.read
+            .format('delta')
+            .load(source_data)
+        )
     
     transformed_df = (source_df
         .groupby('Country_Region', 'Last_Update')
@@ -117,7 +123,6 @@ def pipeline_enrich_cleaned_covid_data(
         .withColumnRenamed('sum(Recovered)','Recovered')
     )
     if have_datafrag:
-        dfsAPI = datafragSparkAPI(spark_session, datafrag_keysapce, datafrag_metatable, datafrag_warehouse)
         dfsAPI.put_datafrag('covid_agg_data',transformed_df)
 
     transformed_df = transformed_df.where(filter)

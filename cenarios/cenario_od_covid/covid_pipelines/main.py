@@ -64,6 +64,10 @@ def cleaned_and_agg_covid(
         ...,
         help="Filter the data of covid",
     ),
+    read_datafrag: str = type.Option(
+        None,
+        help="Google Storage URL to get covid raw data",
+    )
 ):
     spark_session = setup_spark(
         app_name='covid_cleaned_agg',
@@ -83,32 +87,10 @@ def cleaned_and_agg_covid(
         filter=filter,
         datafrag_keysapce=ENV_CONFIG['datafrag_keyspace'],
         datafrag_metatable=ENV_CONFIG['datafrag_metatable'],
-        datafrag_warehouse=ENV_CONFIG['datafrag_warehouse']
+        datafrag_warehouse=ENV_CONFIG['datafrag_warehouse'],
+        read_datafrag=read_datafrag
     )
     return 0
-
-# @app.command()
-# def cor_precipitation_refined(
-#     table_raw: str = typer.Option(
-#         ...,
-#         help="Table cor precipitation table raw data",
-#     ),
-#     metadata_table: str = typer.Option(
-#         ...,
-#         help="Table of metadata cor estations",
-#     ),
-# ):
-#     spark_session = setup_spark(
-#         app_name="corprepicitationrefined",   
-#     )
-
-#     pipeline_cor_precipitation_enrich_ingest(
-#         spark_session=spark_session,
-#         warehouse=ENV_CONFIG['warehouse'],
-#         table_raw=table_raw,
-#         metadata_table=metadata_table
-#     )
-#     return 0
 
 if __name__ == "__main__":
     app()
