@@ -4,8 +4,7 @@ import typer
 
 from pipeline import (
     pipeline_covid_raw_ingest,
-    pipeline_cleaned_covid_with_filter,
-    pipeline_enrich_cleaned_covid_data
+    pipeline_cleaned_covid_with_filter
 )
 from spark_conf import setup_spark, ENV_CONFIG
 
@@ -64,8 +63,8 @@ def cleaned_and_agg_covid(
         ...,
         help="Filter the data of covid",
     ),
-    read_datafrag: str = type.Option(
-        None,
+    read_datafrag: str = typer.Option(
+        "",
         help="Google Storage URL to get covid raw data",
     )
 ):

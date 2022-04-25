@@ -54,13 +54,19 @@ def pipeline_cleaned_covid_with_filter(
     filter: str,
     datafrag_keysapce: str,
     datafrag_metatable: str,
-    datafrag_warehouse: str
+    datafrag_warehouse: str,
+    read_datafrag: str = None
 ) -> None:
-    logger.info(f'Read source data {source_data}')
-    source_df = (spark_session.read
-        .format('delta')
-        .load(source_data)
-    )
+    dfsAPI = datafragSparkAPI(spark_session, datafrag_keysapce, datafrag_metatable, datafrag_warehouse)
+    if read_datafrag:
+        logger.info(f'Read data fragment {read_datafrag}')
+        source_df = dfsAPI.get_datafrag(read_datafrag)
+    else:
+        logger.info(f'Read source data {source_data}')
+        source_df = (spark_session.read
+            .format('delta')
+            .load(source_data)
+        )
     
     source_df.printSchema()
 
@@ -72,58 +78,12 @@ def pipeline_cleaned_covid_with_filter(
         .withColumnRenamed('sum(Recovered)','Recovered')
     )
 
-    transformed_df.show(50)
+    transformed_df.show(10)
 
     if have_datafrag:
-        dfsAPI = datafragSparkAPI(spark_session, datafrag_keysapce, datafrag_metatable, datafrag_warehouse)
         dfsAPI.put_datafrag('covid_agg_data', transformed_df)
 
     logger.debug(f'filter: {filter}')
-
-    transformed_df = transformed_df.where(filter)
-    logger.info(f'Starting save data in gs://{bucket}/{warehouse}/{destiny_table}')
-    (transformed_df.write
-        .format('delta')
-        .mode('overwrite')
-        .option('overwriteSchema', 'true') \
-        .save(f'gs://{bucket}/{warehouse}/{destiny_table}')
-    )
-
-    spark_session.stop()
-
-def pipeline_enrich_cleaned_covid_data(
-    spark_session: SparkSession,
-    warehouse: str,
-    bucket: str,
-    source_data: str,
-    destiny_table: str,
-    have_datafrag: bool,
-    filter: str,
-    datafrag_keysapce: str,
-    datafrag_metatable: str,
-    datafrag_warehouse: str,
-    read_datafrag: str = None
-) -> None:
-    dfsAPI = datafragSparkAPI(spark_session, datafrag_keysapce, datafrag_metatable, datafrag_warehouse)
-    if read_datafrag:
-        logger.info(f'Read data fragment {read_datafrag}')
-        source_df = dfsAPI.get_datafrag(datafrag_metatable)
-    else:
-        logger.info(f'Read source data {source_data}')
-        source_df = (spark_session.read
-            .format('delta')
-            .load(source_data)
-        )
-    
-    transformed_df = (source_df
-        .groupby('Country_Region', 'Last_Update')
-        .sum('Confirmed','Deaths','Recovered')
-        .withColumnRenamed('sum(Deaths)', 'Deaths')
-        .withColumnRenamed('sum(Confirmed)', 'Confirmed')
-        .withColumnRenamed('sum(Recovered)','Recovered')
-    )
-    if have_datafrag:
-        dfsAPI.put_datafrag('covid_agg_data',transformed_df)
 
     transformed_df = transformed_df.where(filter)
     logger.info(f'Starting save data in gs://{bucket}/{warehouse}/{destiny_table}')

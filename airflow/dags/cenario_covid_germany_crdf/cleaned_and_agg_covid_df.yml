@@ -18,7 +18,7 @@ spec:
     "covid_treated_agg",
     "--filter",
     "Country_Region=\"Germany\"",
-    "--read_datafrag",
+    "--read-datafrag",
     "covid_agg_data"
   ]
   hadoopConf:
