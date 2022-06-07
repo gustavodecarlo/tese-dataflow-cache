@@ -16,18 +16,33 @@ class datafragSparkAPI(object):
         self.datafrag_wareghouse = datafrag_warehouse
     
     def _extract_metadata(self, datafrag_ref: str, dataframe: DataFrame) -> dict:
-        operations = dataframe._sc._jvm.PythonSQLUtils.explainString(dataframe._jdf.queryExecution(), "cost").split('\n\n')[0].replace("== Optimized Logical Plan ==\n","")
-        operations = operations.split("+-")
+        operations = dataframe._sc._jvm.PythonSQLUtils.explainString(dataframe._jdf.queryExecution(), 'cost').split('\n\n')[0].replace('== Optimized Logical Plan ==\n','')
+        operations = operations.split('\n')
         operations = operations[::-1]
-        metadata = metadata = {"dataflow": datafrag_ref, "operation": {}}
+        metadata = metadata = {'dataflow': datafrag_ref, 'operation': {}}
         for ope in operations:
             temp = ope.strip().split(', Statistics')
-            metadata['operation'].update({
-                f'{temp[0][0:temp[0].find("[")].strip().lower()}': {
-                    'value': temp[0][temp[0].find("["):],
-                    'cost': temp[1].split("=")[1].replace(")","")
-                }
-            })
+            if '[' in temp[0][0:]:
+                columns = list(
+                    set(
+                        [column.split('#')[0].strip().replace('[','') if ') AS' not in column else column.split(') AS ')[1].split('#')[0].strip().replace('[','') for column in temp[0][temp[0].find("["):temp[0].rfind("]")].split(",")]
+                    )
+                )
+                columns.sort()
+                metadata['operation'].update({
+                    f'{temp[0][0:temp[0].find("[")].strip().lower().replace("+- ","")}': {
+                        'value': temp[0][temp[0].find("["):],
+                        'cost': temp[1].split("=")[1].replace(")",""),
+                        'columns': columns
+                    }
+                })
+            else:
+                metadata['operation'].update({
+                    f'{temp[0][0:temp[0].find("(")].strip().lower().replace("+- ","")}': {
+                        'value': temp[0][temp[0].find("("):],
+                        'cost': temp[1].split("=")[1].replace(")","")
+                    }
+                })
         metadata['timestamp'] = datetime.now().replace(microsecond=0)
         logger.debug(metadata)
         return metadata
