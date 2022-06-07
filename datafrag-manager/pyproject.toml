@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "datafrag_manager"
-version = "0.0.1"
+version = "0.0.2"
 description = "Data Fragments Manager in dataflows spark"
 authors = ["Gustavo Decarlo <gustavodecarlo@gmail.com>"]
 
