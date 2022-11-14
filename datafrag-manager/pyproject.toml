@@ -8,6 +8,8 @@ authors = ["Gustavo Decarlo <gustavodecarlo@gmail.com>"]
 pyarrow = "^4.0.0"
 pyspark = "^3.2.1"
 cassandra-driver = "^3.25.0"
+sqloxide = "^0.1.26"
+boolean.py = "^4.0"
 python = "^3.9"
 
 [tool.poetry.dev-dependencies]
