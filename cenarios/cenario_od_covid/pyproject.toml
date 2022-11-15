@@ -1,11 +1,10 @@
 [tool.poetry]
 name = "covid_pipelines"
-version = "0.0.1"
+version = "0.0.2"
 description = "Cenario pipelines dados da covid"
 authors = ["Gustavo Decarlo <gustavodecarlo@gmail.com>"]
 
 [tool.poetry.dependencies]
-pyarrow = "^4.0.0"
 pyspark = "^3.2.1"
 python = "^3.9"
 typer = "^0.4.0"
