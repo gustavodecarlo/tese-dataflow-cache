@@ -19,6 +19,7 @@ def setup_spark(
         .config('spark.cassandra.connection.port', cassandra_port)
         .config('spark.cassandra.auth.username', cassandra_user)
         .config('spark.cassandra.auth.password', cassandra_password)
+        .config('spark.cassandra.output.consistency.level', 'LOCAL_ONE')
         .getOrCreate()
     )
 
@@ -34,5 +35,6 @@ ENV_CONFIG = {
     'google_bucket': os.getenv('GOOGLE_BUCKET'),
     'datafrag_warehouse': os.getenv('DATAFRAG_WAREHOUSE'),
     'datafrag_metatable': os.getenv('DATAFRAG_METATABLE'),
+    'datafrag_tc_metatable': os.getenv('DATAFRAG_TC_METATABLE'),
     'datafrag_keyspace': os.getenv('DATAFRAG_KEYSPACE'),
 }
