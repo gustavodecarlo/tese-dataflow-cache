@@ -1,7 +1,7 @@
 apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
-  name: "covid-cleaned-agg-{{ macros.uuid.uuid4() }}-{{ task_instance.try_number }}"
+  name: "dummy-cleaned-agg-read-{{ macros.uuid.uuid4() }}-{{ task_instance.try_number }}"
   namespace: default
 spec:
   type: Python
@@ -11,15 +11,15 @@ spec:
   imagePullPolicy: IfNotPresent
   mainApplicationFile: "local:///opt/spark/work-dir/cenarios/cenario_od_covid/covid_pipelines/main.py"
   arguments: [
-    "cleaned-and-agg-covid",
+    "cleaned-and-filter-containment",
     "--source-data",
-    "gs://lncc-tese-datafrag/covid_brazil/covid_raw",
+    "gs://lncc-tese-datafrag/dummy_warehouse/dummy_raw",
     "--table",
-    "covid_treated_agg",
+    "dummy_treated_agg",
     "--filter",
-    "Country_Region=\"Germany\"",
+    "((A >= 6 AND A <= 8) AND ((B = 6) OR (C >= 11 AND C <= 13)))",
     "--read-datafrag",
-    "covid_agg_data"
+    "{{ datafrag_config.dataflow }}"
   ]
   hadoopConf:
     "fs.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem"

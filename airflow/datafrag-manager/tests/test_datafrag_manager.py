@@ -39,9 +39,9 @@ def test_datafragSparkAPI_extract_metadata():
     expected = {
         'dataflow': 'test_frag',
         'operation': {
-            'logicalrdd': {'value': '[first_field#0, field_number#1L, field_number2#2], false', 'cost': '8.0 EiB'},
-            'project': {'value': '[first_field#0, field_number#1L]', 'cost': '6.5 EiB'},
-            'aggregate': {'value': '[first_field#0], [first_field#0, sum(field_number#1L) AS sum_field_number#13L]', 'cost': '6.5 EiB'}
+            'logicalrdd': {'value': '[first_field#0, field_number#1L, field_number2#2], false', 'cost': '8.0 EiB', 'columns': ['field_number','field_number2','first_field']},
+            'project': {'value': '[first_field#0, field_number#1L]', 'cost': '6.5 EiB', 'columns': ['field_number','first_field']},
+            'aggregate': {'value': '[first_field#0], [first_field#0, sum(field_number#1L) AS sum_field_number#13L]', 'cost': '6.5 EiB', 'columns': ['first_field','sum_field_number']}
             },
         'timestamp': datetime.datetime.now().replace(microsecond=0)
     }

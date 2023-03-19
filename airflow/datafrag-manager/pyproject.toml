@@ -1,13 +1,15 @@
 [tool.poetry]
 name = "datafrag_manager"
-version = "0.0.1"
+version = "0.0.3"
 description = "Data Fragments Manager in dataflows spark"
 authors = ["Gustavo Decarlo <gustavodecarlo@gmail.com>"]
 
 [tool.poetry.dependencies]
-pyarrow = "^4.0.0"
-pyspark = "^3.2.1"
+pyspark = "3.2.2"
 cassandra-driver = "^3.25.0"
+"boolean.py" = "^4.0"
+pyarrow = "^10.0.1"
+sqloxide = { git = "https://github.com/wseaton/sqloxide.git", tag = "v0.1.26" }
 python = "^3.9"
 
 [tool.poetry.dev-dependencies]

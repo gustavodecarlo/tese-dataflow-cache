@@ -59,7 +59,7 @@ def get_metadata_table_representation(spark_session: SparkSession, dataflow: str
         FROM {dataflow}
         WHERE {dnf_filter}
     '''
-    output = parse_sql(sql=sql, dialect='generic')
+    output = parse_sql(sql=sql, dialect='spark')
     where_condition = output[0].get('Query').get('body').get('Select').get('selection')
     old_term = None
     table_repr = [{}]

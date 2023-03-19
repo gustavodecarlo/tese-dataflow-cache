@@ -214,7 +214,8 @@ def pipeline_check_containment(
         task=__name__, 
         datasource=source_data, 
         filter=filter
-    )  
+    ) 
+    df_consumer.show(5)
     containment = dfsAPI.resolve_containment(
         df_consumer=df_consumer
     )

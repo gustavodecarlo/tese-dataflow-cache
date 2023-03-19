@@ -1,7 +1,7 @@
 apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
-  name: "covid-cleaned-agg-{{ macros.uuid.uuid4() }}-{{ task_instance.try_number }}"
+  name: "dummy-cleaned-agg-{{ macros.uuid.uuid4() }}-{{ task_instance.try_number }}"
   namespace: default
 spec:
   type: Python
@@ -11,15 +11,13 @@ spec:
   imagePullPolicy: IfNotPresent
   mainApplicationFile: "local:///opt/spark/work-dir/cenarios/cenario_od_covid/covid_pipelines/main.py"
   arguments: [
-    "cleaned-and-agg-covid",
+    "cleaned-and-filter-containment",
     "--source-data",
-    "gs://lncc-tese-datafrag/covid_brazil/covid_raw",
+    "gs://lncc-tese-datafrag/dummy_warehouse/dummy_raw",
     "--table",
-    "covid_treated_agg",
+    "dummy_treat_filter",
     "--filter",
-    "Country_Region=\"Germany\"",
-    "--read-datafrag",
-    "covid_agg_data"
+    "((A >= 5 AND A <= 10) AND ((B >= 2 AND B <= 6) OR (C >= 10 AND C <= 15)))"
   ]
   hadoopConf:
     "fs.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem"
@@ -66,7 +64,7 @@ spec:
   executor:
     cores: 1
     instances: 2
-    memory: "1024m"
+    memory: "512m"
     labels:
       version: 3.2.2
     env:
@@ -82,10 +80,10 @@ spec:
       value: "{{ env_config.datafrag_warehouse }}"
     - name: DATAFRAG_METATABLE
       value: "{{ env_config.datafrag_metatable }}"
-    - name: DATAFRAG_TC_METATABLE
-      value: "{{ env_config.datafrag_tc_metatable }}"
     - name: DATAFRAG_KEYSPACE
       value: "{{ env_config.datafrag_keyspace }}"
+    - name: DATAFRAG_TC_METATABLE
+      value: "{{ env_config.datafrag_tc_metatable }}"
     - name: GOOGLE_APPLICATION_CREDENTIALS
       value: "{{ env_config.google_application_credentials }}"
     volumeMounts:

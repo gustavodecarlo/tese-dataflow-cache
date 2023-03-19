@@ -6,9 +6,10 @@ from pipeline import (
     pipeline_covid_raw_ingest,
     pipeline_containment_dummy_raw_ingest,
     pipeline_cleaned_covid_with_filter,
-    pipeline_cleaned_containment_dummy_with_filter
+    pipeline_cleaned_containment_dummy_with_filter,
+    pipeline_check_containment
 )
-from spark_conf import setup_spark, ENV_CONFIG
+from spark_conf import setup_spark, setup_spark_only_cassandra, ENV_CONFIG
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(module)s : %(lineno)d - %(message)s',
@@ -148,7 +149,7 @@ def cleaned_and_filter_containment(
     )
 ):
     spark_session = setup_spark(
-        app_name='covid_cleaned_agg',
+        app_name='cleaned_and_filter_containment',
         cassandra_user=ENV_CONFIG.get('cassandra_user'),
         cassandra_password=ENV_CONFIG.get('cassandra_password'),
         cassandra_host=ENV_CONFIG.get('cassandra_host'),
@@ -170,6 +171,38 @@ def cleaned_and_filter_containment(
         read_datafrag=read_datafrag
     )
     return 0
+
+@app.command()
+def test_containment(
+    source_data: str = typer.Option(
+        ...,
+        help="URL to get dummy csv files",
+    ),
+    filter: str = typer.Option(
+        ...,
+        help="Filter the data",
+    ),
+):
+    spark_session = setup_spark_only_cassandra(
+        app_name='covid_cleaned_agg',
+        cassandra_user=ENV_CONFIG.get('cassandra_user'),
+        cassandra_password=ENV_CONFIG.get('cassandra_password'),
+        cassandra_host=ENV_CONFIG.get('cassandra_host'),
+        cassandra_port=ENV_CONFIG.get('cassandra_port'),
+    )
+
+    pipeline_check_containment(
+        spark_session=spark_session,
+        source_data=source_data,
+        filter=filter,
+        datafrag_keysapce=ENV_CONFIG.get('datafrag_keyspace'),
+        datafrag_metatable=ENV_CONFIG.get('datafrag_metatable'),
+        datafrag_tc_metatable=ENV_CONFIG.get('datafrag_tc_metatable'),
+        datafrag_warehouse=ENV_CONFIG.get('datafrag_warehouse'),
+    )
+    return 0
+
+
 
 if __name__ == "__main__":
     app()

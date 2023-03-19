@@ -27,7 +27,7 @@ spec:
   sparkConf:
     "spark.sql.shuffle.partitions": "10"
     "spark.sql.parquet.compression.codec": "gzip"
-  sparkVersion: "3.1.2"
+  sparkVersion: "3.2.2"
   restartPolicy:
     type: Never
   volumes:
@@ -39,25 +39,23 @@ spec:
     cores: 2
     memory: "3000m"
     labels:
-      version: 3.1.2
+      version: 3.2.2
     serviceAccount: spark
     env:
     - name: WAREHOUSE
       value: "{{ env_config.warehouse }}"
-    - name: CASSANDRA_PASSWORD
-      value: "{{ env_config.cassandra_password }}"
     - name: CASSANDRA_HOST
       value: "{{ env_config.cassandra_host }}"
     - name: CASSANDRA_PORT
       value: "{{ env_config.cassandra_port }}"
-    - name: CASSANDRA_USER
-      value: "{{ env_config.cassandra_user }}"
     - name: GOOGLE_BUCKET
       value: "{{ env_config.google_bucket }}"
     - name: DATAFRAG_WAREHOUSE
       value: "{{ env_config.datafrag_warehouse }}"
     - name: DATAFRAG_METATABLE
       value: "{{ env_config.datafrag_metatable }}"
+    - name: DATAFRAG_TC_METATABLE
+      value: "{{ env_config.datafrag_tc_metatable }}"
     - name: DATAFRAG_KEYSPACE
       value: "{{ env_config.datafrag_keyspace }}"
     - name: GOOGLE_APPLICATION_CREDENTIALS
@@ -70,7 +68,7 @@ spec:
     instances: 1
     memory: "1500m"
     labels:
-      version: 3.1.2
+      version: 3.2.2
     serviceAccount: spark
     env:
     - name: WAREHOUSE
@@ -89,6 +87,8 @@ spec:
       value: "{{ env_config.datafrag_warehouse }}"
     - name: DATAFRAG_METATABLE
       value: "{{ env_config.datafrag_metatable }}"
+    - name: DATAFRAG_TC_METATABLE
+      value: "{{ env_config.datafrag_tc_metatable }}"
     - name: DATAFRAG_KEYSPACE
       value: "{{ env_config.datafrag_keyspace }}"
     - name: GOOGLE_APPLICATION_CREDENTIALS

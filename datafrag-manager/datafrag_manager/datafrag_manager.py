@@ -3,8 +3,9 @@ from datetime import datetime
 
 from pyspark.sql.session import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, TimestampType, LongType, DoubleType
+from pyspark.sql import functions as F
 
-from utils import convert_filter_to_dnf, get_metadata_table_representation
+from .utils import convert_filter_to_dnf, get_metadata_table_representation
 
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,6 @@ class datafragSparkAPI(object):
                 metadata['operation'].update({
                     f'{temp[0][0:temp[0].find("(")].strip().lower().replace("+- ","")}': {
                         'value': temp[0][temp[0].find("("):],
-                        'value_dnf': convert_filter_to_dnf(temp[0][temp[0].find("("):]),
                         'cost': temp[1].split("=")[1].replace(")","")
                     }
                 })
@@ -79,7 +79,7 @@ class datafragSparkAPI(object):
             dataflow=datafrag_ref,
             task=task_name, 
             datasource=datasource, 
-            metadata=metadata
+            filter=metadata.get('operation').get('filter').get('value')
         )
         (df_operation.write
             .format('org.apache.spark.sql.cassandra')
@@ -89,7 +89,7 @@ class datafragSparkAPI(object):
         )
         (df_containment.write
             .format('org.apache.spark.sql.cassandra')
-            .mode('update')
+            .mode('append')
             .options(table=self.table_containment, keyspace=self.keyspace)
             .save()
         )
@@ -109,26 +109,35 @@ class datafragSparkAPI(object):
         except Exception as e:
             logger.warning(f'Could not read fragment because: {e}')
             return None
-    ### estou aqui nesse momento
-    def resolve_containment(self, df_consumer: DataFrame) -> bool:
-        self.spark_session.sql('''
-        WITH prod AS (
-            SELECT term ,COUNT(1) as pattrs FROM producer group by term
+    
+    def resolve_containment(self, df_consumer: DataFrame) -> dict:
+        df_producer = (self.spark_session.read
+            .format('org.apache.spark.sql.cassandra')
+            .options(table=self.table_containment, keyspace=self.keyspace)
+            .load()
         )
-        
-        SELECT A.term, count(distinct(attribute)) attrs, pattrs, IF(count(distinct(attribute)) = pattrs,true,false) FROM (
-            SELECT P.attribute, C.term
-            FROM producer P, consumer C
-            WHERE
-            P.datasource = C.datasource AND
-            P.attribute = C.attribute AND
-            (P.min <= C.min AND
-            P.max >= C.max)
-        ) A, prod
-        WHERE A.term = prod.term
-        GROUP BY A.term, prod.pattrs
-        ''').show(5)
-        pass
+        df_producer.show(5)
+        df_producer.createOrReplaceTempView('producer')
+        df_consumer.createOrReplaceTempView('consumer')
+        result = self.spark_session.sql('''
+            WITH prod AS (
+                SELECT dataflow, term, COUNT(1) as pattrs FROM producer group by dataflow, term
+            )
+            
+            SELECT prod.dataflow, A.term, count(distinct(attribute)) attrs, pattrs, IF(count(distinct(attribute)) = pattrs,true,false) contain FROM (
+                SELECT P.attribute, C.term
+                FROM producer P, consumer C
+                WHERE
+                P.datasource = C.datasource AND
+                P.attribute = C.attribute AND
+                (P.min <= C.min AND
+                P.max >= C.max)
+            ) A, prod
+            WHERE A.term = prod.term
+            GROUP BY prod.dataflow, A.term, prod.pattrs
+        ''').agg(F.max('contain').alias('contain'),F.max('dataflow').alias('dataflow')).head().asDict()
+        logger.debug(result)
+        return result
 
 class datafragOperationsAPI(object):
     def __init__(self, cassandra_connection, keyspace: str, table: str) -> None:

@@ -138,4 +138,4 @@ warehouse_frags/
 metastore_db/
 source_data/
 key.json
-.env.sh
+.env*.sh

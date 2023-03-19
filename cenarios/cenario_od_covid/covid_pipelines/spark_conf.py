@@ -17,8 +17,28 @@ def setup_spark(
         .config('spark.delta.logStore.gs.impl', 'io.delta.storage.GCSLogStore')
         .config('spark.cassandra.connection.host', cassandra_host)
         .config('spark.cassandra.connection.port', cassandra_port)
-        .config('spark.cassandra.auth.username', cassandra_user)
-        .config('spark.cassandra.auth.password', cassandra_password)
+        # .config('spark.cassandra.auth.username', cassandra_user)
+        # .config('spark.cassandra.auth.password', cassandra_password)
+        .config('spark.cassandra.output.consistency.level', 'LOCAL_ONE')
+        .getOrCreate()
+    )
+
+    return spark
+
+def setup_spark_only_cassandra(
+    app_name: str,
+    cassandra_user: str,
+    cassandra_password: str,
+    cassandra_host: str = 'localhost',
+    cassandra_port: str = '9042'
+) -> SparkSession:
+    spark = (
+        SparkSession.builder.appName(app_name)
+        .config('spark.sql.extensions', 'com.datastax.spark.connector.CassandraSparkExtensions')
+        .config('spark.cassandra.connection.host', cassandra_host)
+        .config('spark.cassandra.connection.port', cassandra_port)
+        # .config('spark.cassandra.auth.username', cassandra_user)
+        # .config('spark.cassandra.auth.password', cassandra_password)
         .config('spark.cassandra.output.consistency.level', 'LOCAL_ONE')
         .getOrCreate()
     )
