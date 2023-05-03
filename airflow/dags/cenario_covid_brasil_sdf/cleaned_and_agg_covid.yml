@@ -30,7 +30,7 @@ spec:
   sparkConf:
     "spark.sql.shuffle.partitions": "10"
     "spark.sql.parquet.compression.codec": "gzip"
-  sparkVersion: "3.2.2"
+  sparkVersion: "3.3.2"
   restartPolicy:
     type: Never
   volumes:
@@ -42,7 +42,7 @@ spec:
     cores: 2
     memory: "2000m"
     labels:
-      version: 3.2.2
+      version: 3.3.2
     serviceAccount: spark
     env:
     - name: WAREHOUSE
@@ -71,7 +71,7 @@ spec:
     instances: 2
     memory: "1024m"
     labels:
-      version: 3.2.2
+      version: 3.3.2
     env:
     - name: WAREHOUSE
       value: "{{ env_config.warehouse }}"

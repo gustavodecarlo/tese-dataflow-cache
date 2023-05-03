@@ -12,7 +12,7 @@ dag = DAG(
     default_args={'max_active_runs': 1},
     description='submit pipeline of covid as sparkApplication on kubernetes',
     schedule_interval=timedelta(days=1),
-    start_date=datetime(2022, 12, 21),
+    start_date=datetime(2023, 3, 25),
     catchup=False,
     user_defined_macros={
         'env_config': CONFIG

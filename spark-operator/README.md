@@ -4,6 +4,8 @@ Após o cluster kubernetes iniciado abaixo seguem as roles e rbac para serem apl
 
 ## Instalar o spark-operator no cluster k8s
 
+    $ docker build --platform linux/arm64 --build-arg SPARK_IMAGE=apache/spark:v3.3.2 -t spark-operator-arm:latest .
+    $ kind load docker-image spark-operator-arm:latest
     $ helm repo add spark-operator https://googlecloudplatform.github.io/spark-on-k8s-operator
     $ helm repo update
     $ helm install spark-operator-release spark-operator/spark-operator --namespace spark-operator --create-namespace --set webhook.enable=true

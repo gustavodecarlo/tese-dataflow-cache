@@ -45,7 +45,7 @@ def pipeline_covid_raw_ingest(
 
     spark_session.stop()
 
-def pipeline_containment_dummy_raw_ingest(
+def pipeline_containment_raw_ingest(
     spark_session: SparkSession,
     bucket: str,
     warehouse: str,
@@ -54,9 +54,7 @@ def pipeline_containment_dummy_raw_ingest(
 ) -> None:
     logger.info(f'Read source data {source_data}')
     source_df = (spark_session.read
-        .format('csv')
-        .option('header', 'true')
-        .option('inferSchema', 'true')
+        .format('parquet')
         .load(source_data)
     )
 
@@ -116,23 +114,29 @@ def pipeline_cleaned_covid_with_filter(
     transformed_df.show(10)
 
     if have_datafrag:
-        dfsAPI.put_datafrag('covid_agg_data', transformed_df)
+        dfsAPI.put_datafrag(
+            datafrag_ref='covid_agg_data', 
+            datafrag=transformed_df,
+            task_name=__name__,
+            datasource='covid'
+        )
 
     logger.debug(f'filter: {filter}')
 
     transformed_df = transformed_df.where(filter)
     logger.info(f'Starting save data in gs://{bucket}/{warehouse}/{destiny_table}')
-    (transformed_df.write
+    (
+        transformed_df.write
         .format('delta')
         .mode('overwrite')
-        .option('overwriteSchema', 'true') \
+        .option('overwriteSchema', 'true') 
         .save(f'gs://{bucket}/{warehouse}/{destiny_table}')
     )
 
     spark_session.stop()
 
 
-def pipeline_cleaned_containment_dummy_with_filter(
+def pipeline_cleaned_containment_with_filter(
     spark_session: SparkSession,
     warehouse: str,
     bucket: str,
@@ -140,6 +144,8 @@ def pipeline_cleaned_containment_dummy_with_filter(
     destiny_table: str,
     have_datafrag: bool,
     filter: str,
+    temp_table: str,
+    sql: str,
     datafrag_keysapce: str,
     datafrag_metatable: str,
     datafrag_tc_metatable: str,
@@ -171,13 +177,13 @@ def pipeline_cleaned_containment_dummy_with_filter(
 
     if have_datafrag:
         dfsAPI.put_datafrag(
-            datafrag_ref='containment_dummy_filter', 
+            datafrag_ref='containment_filter', 
             datafrag=transformed_df,
             task_name=__name__,
-            datasource=source_data
+            datasource=temp_table
         )
-
-    transformed_df = transformed_df.select('A','C')
+    transformed_df.createOrReplaceTempView(temp_table)
+    transformed_df = spark_session.sql(sql)
 
     destiny_path = f'gs://{bucket}/{warehouse}/{destiny_table}' if bucket else f'{warehouse}/{destiny_table}'
     

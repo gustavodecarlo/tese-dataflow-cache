@@ -1,4 +1,4 @@
-POSTGRES_IP=10.244.0.6
+POSTGRES_IP=10.244.0.10
 docker-build:
 	docker build --tag airflow-w-dags:latest .
 

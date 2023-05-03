@@ -17,7 +17,11 @@ spec:
     "--table",
     "dummy_treat_filter",
     "--filter",
-    "((A >= 5 AND A <= 10) AND ((B >= 2 AND B <= 6) OR (C >= 10 AND C <= 15)))"
+    "((A >= 5 AND A <= 10) AND ((B >= 2 AND B <= 6) OR (C >= 10 AND C <= 15)))",
+    "--temp-table",
+    "dummy",
+    "--sql",
+    "SELECT A, B FROM dummy"
   ]
   hadoopConf:
     "fs.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem"
@@ -25,7 +29,7 @@ spec:
   sparkConf:
     "spark.sql.shuffle.partitions": "10"
     "spark.sql.parquet.compression.codec": "gzip"
-  sparkVersion: "3.2.2"
+  sparkVersion: "3.3.2"
   restartPolicy:
     type: Never
   volumes:
@@ -37,7 +41,7 @@ spec:
     cores: 2
     memory: "2500m"
     labels:
-      version: 3.2.2
+      version: 3.3.2
     serviceAccount: spark
     env:
     - name: WAREHOUSE
@@ -66,7 +70,7 @@ spec:
     instances: 2
     memory: "512m"
     labels:
-      version: 3.2.2
+      version: 3.3.2
     env:
     - name: WAREHOUSE
       value: "{{ env_config.warehouse }}"

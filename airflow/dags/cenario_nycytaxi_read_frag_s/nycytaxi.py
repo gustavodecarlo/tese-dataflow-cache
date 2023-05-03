@@ -9,11 +9,11 @@ from pyspark.sql import SparkSession
 
 from datafrag_manager import datafragSparkAPI, get_metadata_table_representation
 
-CONFIG = Variable.get('config_dummy', deserialize_json=True)
+CONFIG = Variable.get('config_nycytaxi_s_vfi', deserialize_json=True)
 
 def get_spark_conn():
     spark = (
-        SparkSession.builder.appName('cenario_dummy_test_data_containment')
+        SparkSession.builder.appName('cenario_nyc_taxi_vfi_containment')
         .config('spark.jars.packages','com.datastax.spark:spark-cassandra-connector_2.12:3.3.0')
         .config('spark.sql.extensions', 'com.datastax.spark.connector.CassandraSparkExtensions')
         .config('spark.cassandra.connection.host', CONFIG.get('cassandra_host'))
@@ -35,29 +35,36 @@ def get_info_datafragment(filter: str):
     )
     df_consumer = get_metadata_table_representation(
         spark_session=spark_session,
-        dataflow='containment_dummy_filter',
+        dataflow='containment_filter',
         task=__name__, 
-        datasource='gs://lncc-tese-datafrag/dummy_warehouse/dummy_raw', 
+        datasource='nyc_yellow_taxi', 
         filter=filter
-    ) 
-    containment = dfsAPI.resolve_containment(
-        df_consumer=df_consumer
     )
+    try:
+        containment = dfsAPI.resolve_containment(
+            df_consumer=df_consumer
+        )
+        print(containment)
+    except Exception as e:
+        print(e)
+        return None, None
 
+    print(containment)
     return containment.get('contain'), containment.get('dataflow') 
 
 def with_datafragment(with_frag: bool):
+    print(with_frag)
     if with_frag:
-        return 'cleaned_and_agg_dummy_df_submit'
+        return 'cleaned_and_agg_nycytaxi_df_submit'
     else:
-        return 'covid_raw_submit'
+        return 'nycytaxi_raw_submit'
 
-with_frag, dataflow = get_info_datafragment('((A#1 >= 6 AND A#1 <= 8) AND ((B#2 = 6) OR (C#3 >= 11 AND C#3 <= 13)))')
+with_frag, dataflow = get_info_datafragment('trip_distance#1 >= 2 AND passenger_count#2 >= 3')
 
 dag = DAG(
-    'cenario_dummy_read_data_containment',
+    'cenario_nycytaxi_read_data_containment',
     default_args={'max_active_runs': 1},
-    description='submit pipeline of dummy as sparkApplication on kubernetes',
+    description='submit pipeline of nycytaxi as sparkApplication on kubernetes',
     schedule_interval=timedelta(days=1),
     start_date=datetime(2023, 3, 25),
     catchup=False,
@@ -75,59 +82,59 @@ way_of_pipeline = BranchPythonOperator(
     op_args=[with_frag]
 )
 
-dummy_raw = SparkKubernetesOperator(
-    task_id='dummy_raw_submit',
+nycytaxi_raw = SparkKubernetesOperator(
+    task_id='nycytaxi_raw_submit',
     namespace="default",
-    application_file="dummy_raw.yml",
+    application_file="nycytaxi_raw.yml",
     kubernetes_conn_id="k8s_config_conn",
     do_xcom_push=True,
     dag=dag,
 )
 
-dummy_raw_sensor = SparkKubernetesSensor(
-    task_id='dummy_raw_sensor',
+nycytaxi_raw_sensor = SparkKubernetesSensor(
+    task_id='nycytaxi_raw_sensor',
     namespace="default",
     kubernetes_conn_id="k8s_config_conn",
-    application_name="{{ task_instance.xcom_pull(task_ids='dummy_raw_submit')['metadata']['name'] }}",
+    application_name="{{ task_instance.xcom_pull(task_ids='nycytaxi_raw_submit')['metadata']['name'] }}",
     dag=dag,
     attach_log=False,
 )
 
-cleaned_and_agg_dummy = SparkKubernetesOperator(
-    task_id='cleaned_and_agg_dummy_submit',
+cleaned_and_agg_nycytaxi = SparkKubernetesOperator(
+    task_id='cleaned_and_agg_nycytaxi_submit',
     namespace="default",
-    application_file="cleaned_and_agg_dummy.yml",
+    application_file="cleaned_and_agg_nycytaxi.yml",
     kubernetes_conn_id="k8s_config_conn",
     do_xcom_push=True,
     dag=dag,
 )
 
-cleaned_and_agg_dummy_sensor = SparkKubernetesSensor(
-    task_id='cleaned_and_agg_covid_sensor',
+cleaned_and_agg_nycytaxi_sensor = SparkKubernetesSensor(
+    task_id='cleaned_and_agg_nycytaxi_sensor',
     namespace="default",
     kubernetes_conn_id="k8s_config_conn",
-    application_name="{{ task_instance.xcom_pull(task_ids='cleaned_and_agg_dummy_submit')['metadata']['name'] }}",
+    application_name="{{ task_instance.xcom_pull(task_ids='cleaned_and_agg_nycytaxi_submit')['metadata']['name'] }}",
     dag=dag,
     attach_log=False,
 )
 
-cleaned_and_agg_dummy_df = SparkKubernetesOperator(
-    task_id='cleaned_and_agg_dummy_df_submit',
+cleaned_and_agg_nycytaxi_df = SparkKubernetesOperator(
+    task_id='cleaned_and_agg_nycytaxi_df_submit',
     namespace="default",
-    application_file="cleaned_and_agg_dummy_df.yml",
+    application_file="cleaned_and_agg_nycytaxi_df.yml",
     kubernetes_conn_id="k8s_config_conn",
     do_xcom_push=True,
     dag=dag,
 )
 
-cleaned_and_agg_dummy_df_sensor = SparkKubernetesSensor(
-    task_id='cleaned_and_agg_dummy_df_sensor',
+cleaned_and_agg_nycytaxi_df_sensor = SparkKubernetesSensor(
+    task_id='cleaned_and_agg_nycytaxi_df_sensor',
     namespace="default",
     kubernetes_conn_id="k8s_config_conn",
-    application_name="{{ task_instance.xcom_pull(task_ids='cleaned_and_agg_dummy_df_submit')['metadata']['name'] }}",
+    application_name="{{ task_instance.xcom_pull(task_ids='cleaned_and_agg_nycytaxi_df_submit')['metadata']['name'] }}",
     dag=dag,
     attach_log=False,
 )
 
-way_of_pipeline >> cleaned_and_agg_dummy_df >> cleaned_and_agg_dummy_df_sensor
-way_of_pipeline >> dummy_raw >> dummy_raw_sensor >> cleaned_and_agg_dummy >> cleaned_and_agg_dummy_sensor
+way_of_pipeline >> cleaned_and_agg_nycytaxi_df >> cleaned_and_agg_nycytaxi_df_sensor
+way_of_pipeline >> nycytaxi_raw >> nycytaxi_raw_sensor >> cleaned_and_agg_nycytaxi >> cleaned_and_agg_nycytaxi_sensor

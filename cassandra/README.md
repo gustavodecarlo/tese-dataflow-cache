@@ -41,4 +41,3 @@ pyspark --packages com.datastax.spark:spark-cassandra-connector_2.12:3.1.0,io.de
 --conf spark.cassandra.auth.username=cassandra \
 --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension,com.datastax.spark.connector.CassandraSparkExtensions \
 --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
-

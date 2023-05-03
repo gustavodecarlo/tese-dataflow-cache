@@ -74,25 +74,28 @@ class datafragSparkAPI(object):
         metadata = self._extract_metadata(datafrag_ref, datafrag)
         schema = self._schema_operation()
         df_operation = self.spark_session.createDataFrame(data=[metadata], schema=schema)
-        df_containment = get_metadata_table_representation(
-            spark_session=self.spark_session,
-            dataflow=datafrag_ref,
-            task=task_name, 
-            datasource=datasource, 
-            filter=metadata.get('operation').get('filter').get('value')
-        )
+        if metadata.get('operation', {}).get('filter', {}).get('value'):
+            df_containment = get_metadata_table_representation(
+                spark_session=self.spark_session,
+                dataflow=datafrag_ref,
+                task=task_name, 
+                datasource=datasource, 
+                filter=metadata.get('operation').get('filter').get('value')
+            )
+            (df_containment.write
+                .format('org.apache.spark.sql.cassandra')
+                .mode('append')
+                .options(table=self.table_containment, keyspace=self.keyspace)
+                .save()
+            )
+
         (df_operation.write
             .format('org.apache.spark.sql.cassandra')
             .mode('append')
             .options(table=self.table, keyspace=self.keyspace)
             .save()
         )
-        (df_containment.write
-            .format('org.apache.spark.sql.cassandra')
-            .mode('append')
-            .options(table=self.table_containment, keyspace=self.keyspace)
-            .save()
-        )
+        
         (datafrag.write
             .format('delta')
             .mode('overwrite')
@@ -130,8 +133,8 @@ class datafragSparkAPI(object):
                 WHERE
                 P.datasource = C.datasource AND
                 P.attribute = C.attribute AND
-                (P.min <= C.min AND
-                P.max >= C.max)
+                (((P.min <= C.min) OR (isnull(P.min) = true AND isnull(C.min) = true)) AND
+                ((P.max >= C.max) OR (isnull(P.max) = true AND isnull(C.max) = true)))
             ) A, prod
             WHERE A.term = prod.term
             GROUP BY prod.dataflow, A.term, prod.pattrs

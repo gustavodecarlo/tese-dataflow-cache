@@ -4,9 +4,9 @@ import typer
 
 from pipeline import (
     pipeline_covid_raw_ingest,
-    pipeline_containment_dummy_raw_ingest,
+    pipeline_containment_raw_ingest,
     pipeline_cleaned_covid_with_filter,
-    pipeline_cleaned_containment_dummy_with_filter,
+    pipeline_cleaned_containment_with_filter,
     pipeline_check_containment
 )
 from spark_conf import setup_spark, setup_spark_only_cassandra, ENV_CONFIG
@@ -96,7 +96,7 @@ def cleaned_and_agg_covid(
     return 0
 
 @app.command()
-def containment_dummy_raw(
+def containment_raw(
     source_data: str = typer.Option(
         ...,
         help= 'URL to get dummy csv files',
@@ -115,7 +115,7 @@ def containment_dummy_raw(
         cassandra_port=ENV_CONFIG.get('cassandra_port'),
     )
 
-    pipeline_containment_dummy_raw_ingest(
+    pipeline_containment_raw_ingest(
         spark_session=spark_session,
         bucket=ENV_CONFIG.get('google_bucket'),
         warehouse=ENV_CONFIG.get('warehouse'),
@@ -143,6 +143,14 @@ def cleaned_and_filter_containment(
         ...,
         help="Filter the data",
     ),
+    temp_table: str = typer.Option(
+        ...,
+        help="Table name for spark temp view",
+    ),
+    sql: str = typer.Option(
+        ...,
+        help="Sql to transform data",
+    ),
     read_datafrag: str = typer.Option(
         "",
         help="Google Storage URL to get covid raw data",
@@ -156,7 +164,7 @@ def cleaned_and_filter_containment(
         cassandra_port=ENV_CONFIG.get('cassandra_port'),
     )
 
-    pipeline_cleaned_containment_dummy_with_filter(
+    pipeline_cleaned_containment_with_filter(
         spark_session=spark_session,
         bucket=ENV_CONFIG.get('google_bucket'),
         warehouse=ENV_CONFIG.get('warehouse'),
@@ -164,6 +172,8 @@ def cleaned_and_filter_containment(
         destiny_table=table,
         have_datafrag=have_datafrag,
         filter=filter,
+        temp_table=temp_table,
+        sql=sql,
         datafrag_keysapce=ENV_CONFIG.get('datafrag_keyspace'),
         datafrag_metatable=ENV_CONFIG.get('datafrag_metatable'),
         datafrag_tc_metatable=ENV_CONFIG.get('datafrag_tc_metatable'),

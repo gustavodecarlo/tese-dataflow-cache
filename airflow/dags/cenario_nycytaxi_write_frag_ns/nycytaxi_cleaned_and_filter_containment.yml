@@ -1,27 +1,30 @@
 apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
-  name: "covid-raw-{{ macros.uuid.uuid4() }}-{{ task_instance.try_number }}"
+  name: "taxi-ns-cleaned-agg-{{ macros.uuid.uuid4() }}-{{ task_instance.try_number }}"
   namespace: default
 spec:
   type: Python
+  pythonVersion: "3"
   mode: cluster
   image: "tese-spark:latest"
   imagePullPolicy: IfNotPresent
   mainApplicationFile: "local:///opt/spark/work-dir/cenarios/cenario_od_covid/covid_pipelines/main.py"
   arguments: [
-    "covid-raw",
+    "cleaned-and-filter-containment",
     "--source-data",
-    "gs://lncc-tese-datafrag/source_covid/csse_covid_19_daily_reports",
+    "gs://lncc-tese-datafrag/cmt_nycytaxi/nyc_yellow_taxi_raw",
     "--table",
-    "covid_raw"  
+    "nyc_yellow_taxi_treat",
+    "--filter",
+    "trip_distance >= 0.5 AND passenger_count >= 1",
+    "--temp-table",
+    "nyc_yellow_taxi",
+    "--sql",
+    "SELECT VendorID, payment_type, SUM(total_amount) total_amount, SUM(passenger_count) passenger_total, sum(trip_distance) total_trip_distance, AVG(total_amount) avg_ticket FROM nyc_yellow_taxi WHERE VendorID = 1 GROUP BY VendorID,payment_type",
+    "--have-datafrag"
   ]
   hadoopConf:
-    "google.cloud.auth.service.account.enable": "true"
-    "google.cloud.auth.service.account.json.keyfile": "{{ env_config.google_application_credentials }}"
-    "fs.gs.outputstream.buffer.size": "33554432"
-    "fs.gs.outputstream.pipe.buffer.size": "8388608"
-    "fs.gs.outputstream.upload.chunk.size": "134217728"
     "fs.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem"
     "fs.AbstractFileSystem.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS"
   sparkConf:
@@ -36,8 +39,8 @@ spec:
         path: "/tmp"
         type: Directory
   driver:
-    cores: 2
-    memory: "3000m"
+    cores: 3
+    memory: "4000m"
     labels:
       version: 3.3.2
     serviceAccount: spark
@@ -54,10 +57,10 @@ spec:
       value: "{{ env_config.datafrag_warehouse }}"
     - name: DATAFRAG_METATABLE
       value: "{{ env_config.datafrag_metatable }}"
-    - name: DATAFRAG_KEYSPACE
-      value: "{{ env_config.datafrag_keyspace }}"
     - name: DATAFRAG_TC_METATABLE
       value: "{{ env_config.datafrag_tc_metatable }}"
+    - name: DATAFRAG_KEYSPACE
+      value: "{{ env_config.datafrag_keyspace }}"
     - name: GOOGLE_APPLICATION_CREDENTIALS
       value: "{{ env_config.google_application_credentials }}"
     volumeMounts:
@@ -65,11 +68,10 @@ spec:
         mountPath: "/tmp"
   executor:
     cores: 1
-    instances: 1
-    memory: "1500m"
+    instances: 2
+    memory: "2048m"
     labels:
       version: 3.3.2
-    serviceAccount: spark
     env:
     - name: WAREHOUSE
       value: "{{ env_config.warehouse }}"

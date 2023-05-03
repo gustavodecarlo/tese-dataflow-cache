@@ -1,4 +1,4 @@
-FROM apache/airflow:2.4.1-python3.9
+FROM apache/airflow:2.5.3-python3.9
 
 USER root
 RUN apt-get update \
@@ -17,6 +17,7 @@ USER airflow
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 ENV PATH $PATH:/home/airflow/.cargo/bin
+ENV AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT 300
 
 COPY dags dags
 COPY plugins plugins

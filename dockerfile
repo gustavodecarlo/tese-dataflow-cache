@@ -1,7 +1,7 @@
 FROM python:3.9
 
 ARG CERT_MOZILLA_URL=https://curl.haxx.se/ca/cacert.pem
-ARG SPARK_URL=https://archive.apache.org/dist/spark/spark-3.2.2/spark-3.2.2-bin-hadoop3.2.tgz
+ARG SPARK_URL=https://archive.apache.org/dist/spark/spark-3.3.2/spark-3.3.2-bin-hadoop3.tgz
 ARG SCALA_URL=https://downloads.lightbend.com/scala/2.12.15/scala-2.12.15.deb
 ARG POETRY_VERSION=1.2.0
 
@@ -55,8 +55,8 @@ ADD https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.1/failurea
 ADD https://repo1.maven.org/maven2/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar $SPARK_HOME/jars
 ADD https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.9/gcs-connector-hadoop3-2.2.9-shaded.jar $SPARK_HOME/jars
 ADD https://repo1.maven.org/maven2/com/google/cloud/spark/spark-bigquery-with-dependencies_2.12/0.23.2/spark-bigquery-with-dependencies_2.12-0.23.2.jar $SPARK_HOME/jars
-ADD https://repo1.maven.org/maven2/com/datastax/spark/spark-cassandra-connector_2.12/3.2.0/spark-cassandra-connector_2.12-3.2.0.jar $SPARK_HOME/jars
-ADD https://repo1.maven.org/maven2/com/datastax/spark/spark-cassandra-connector-driver_2.12/3.2.0/spark-cassandra-connector-driver_2.12-3.2.0.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/datastax/spark/spark-cassandra-connector_2.12/3.3.0/spark-cassandra-connector_2.12-3.3.0.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/com/datastax/spark/spark-cassandra-connector-driver_2.12/3.3.0/spark-cassandra-connector-driver_2.12-3.3.0.jar $SPARK_HOME/jars
 ADD https://repo1.maven.org/maven2/com/datastax/oss/java-driver-core-shaded/4.12.0/java-driver-core-shaded-4.12.0.jar $SPARK_HOME/jars
 ADD https://repo1.maven.org/maven2/com/datastax/oss/java-driver-shaded-guava/25.1-jre-graal-sub-1/java-driver-shaded-guava-25.1-jre-graal-sub-1.jar $SPARK_HOME/jars
 ADD https://repo1.maven.org/maven2/com/datastax/oss/java-driver-query-builder/4.12.0/java-driver-query-builder-4.12.0.jar $SPARK_HOME/jars
@@ -74,8 +74,8 @@ ADD https://repo1.maven.org/maven2/com/github/jnr/jnr-posix/3.1.15/jnr-posix-3.1
 
 RUN chmod 644 $SPARK_HOME/jars/*.jar
 
-RUN jar -xvf $SPARK_HOME/jars/zstd-jni-1.5.0-4.jar linux/aarch64/libzstd-jni-1.5.0-4.so \
-    && mv linux/aarch64/libzstd-jni-1.5.0-4.so /usr/lib \
+RUN jar -xvf $SPARK_HOME/jars/zstd-jni-1.5.2-1.jar linux/aarch64/libzstd-jni-1.5.2-1.so \
+    && mv linux/aarch64/libzstd-jni-1.5.2-1.so /usr/lib \
     && rm -fr linux/
 
 RUN pip install "poetry==${POETRY_VERSION}"

@@ -1,7 +1,7 @@
 apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
-  name: "covid-raw-{{ macros.uuid.uuid4() }}-{{ task_instance.try_number }}"
+  name: "taxi-s-raw-{{ macros.uuid.uuid4() }}-{{ task_instance.try_number }}"
   namespace: default
 spec:
   type: Python
@@ -10,11 +10,11 @@ spec:
   imagePullPolicy: IfNotPresent
   mainApplicationFile: "local:///opt/spark/work-dir/cenarios/cenario_od_covid/covid_pipelines/main.py"
   arguments: [
-    "covid-raw",
+    "containment-raw",
     "--source-data",
-    "gs://lncc-tese-datafrag/source_covid/csse_covid_19_daily_reports",
+    "gs://lncc-tese-datafrag/source_nyc_yellow_taxi",
     "--table",
-    "covid_raw"  
+    "nyc_yellow_taxi_raw"
   ]
   hadoopConf:
     "google.cloud.auth.service.account.enable": "true"
@@ -36,8 +36,8 @@ spec:
         path: "/tmp"
         type: Directory
   driver:
-    cores: 2
-    memory: "3000m"
+    cores: 3
+    memory: "4000m"
     labels:
       version: 3.3.2
     serviceAccount: spark
@@ -65,8 +65,8 @@ spec:
         mountPath: "/tmp"
   executor:
     cores: 1
-    instances: 1
-    memory: "1500m"
+    instances: 2
+    memory: "2048m"
     labels:
       version: 3.3.2
     serviceAccount: spark
